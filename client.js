@@ -2,11 +2,21 @@ const socket = io()
 let username
 let textArea = document.querySelector('#textarea')
 let messagearea = document.querySelector(".message__area")
+let brandarea = document.querySelector(".brand")
 // let clientName = document.querySelector(".client_name")
+
+
 do{
     username = prompt("Enter your name")
-}while(!username)
-socket.emit('client_nme', username)
+}while(!username) // not value in username and room
+
+// for room id 
+do{
+    room = prompt("Enter your room id ")
+}while(!room)
+
+socket.emit('room_id',room)
+socket.emit('client_nme', data={username,room})
 welcome()
 
 function welcome(){
@@ -44,10 +54,23 @@ function appendclient(username,type,status){
 
 // now use enter key event 
 textArea.addEventListener('keyup',(e)=>{
+    socket.emit("typing",room)
     if(e.key === 'Enter'){
         sendMessage(e.target.value)
+        socket.emit("typing_stop",room)
     }
+    else if(e.target.value == ""){
+        socket.emit("typing_stop",room)
+    }
+
 })
+
+function sendmsg(){
+    socket.emit("typing_stop",room)
+    var mssg = textArea.value
+    sendMessage(mssg)
+
+}
 
 
 function sendMessage(message){
@@ -65,7 +88,7 @@ function sendMessage(message){
     scrollTobottom()
 
     // send to server
-    socket.emit('message', msg)
+    socket.emit('message', data={msg,room})
 }
 
 function appendMessage(msg,type){
@@ -83,6 +106,11 @@ function appendMessage(msg,type){
 
     messagearea.appendChild(mainDiv)
 }
+
+function appendtyping(ty){
+    var data = document.getElementsByClassName("brand")[1]
+    data.innerHTML = ty
+}
 // user disconnect inform
 socket.on('user_disconnect',(users)=>{
     appendclient(users,'client_name','disconnected')
@@ -99,6 +127,17 @@ socket.on('client_nme',(nme)=>{
 
 socket.on('message',(msg)=>{
     appendMessage(msg,'incoming')
+    scrollTobottom()
+})
+
+// recive the typing
+socket.on('typing',(ty)=>{
+    appendtyping(ty)
+    scrollTobottom()
+})
+
+socket.on("typing_stop",(ty)=>{
+    appendtyping(ty)
     scrollTobottom()
 })
 
