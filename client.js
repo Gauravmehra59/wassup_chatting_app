@@ -108,7 +108,7 @@ function appendMessage(msg,type){
 }
 
 function appendtyping(ty){
-    var data = document.getElementsByClassName("brand")[1]
+    var data = document.getElementById("typee")
     data.innerHTML = ty
 }
 // user disconnect inform
