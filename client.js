@@ -118,6 +118,7 @@ function appendMessage(msg,type){
 function appendtyping(ty){
     var data = document.getElementById("typee")
     data.innerHTML = ty
+    seen_unseen("seen")
 }
 
 function seen_unseen(msg){
@@ -129,10 +130,6 @@ function seen_unseen(msg){
 function seen_status(){
 window.addEventListener('focus',()=>{
     stat = "seen"
-    socket.emit("delv",msg={stat,room})
-})
-window.addEventListener('blur',()=>{
-    stat = ""
     socket.emit("delv",msg={stat,room})
 })
 }
