@@ -106,7 +106,7 @@ function appendMessage(msg,type){
     mainDiv.innerHTML = markup
 
     messagearea.appendChild(mainDiv)
-    if (type == "incoming"){
+    if (type == "outgoing"){
         stat = ""
         socket.emit("delv",msg={stat,room})
     }
