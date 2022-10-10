@@ -106,10 +106,10 @@ function appendMessage(msg,type){
     mainDiv.innerHTML = markup
 
     messagearea.appendChild(mainDiv)
-    seen_status()
-    if (type == "outgoing"){
-        seen_status()
-    }
+    // seen_status()
+    // if (type == "outgoing"){
+    //     seen_status()
+    // }
     
 
 }
@@ -120,22 +120,22 @@ function appendtyping(ty){
     // seen_unseen("seen")
 }
 
-function seen_unseen(msg){
-    document.getElementById("status").innerHTML = msg
-}
+// function seen_unseen(msg){
+//     document.getElementById("status").innerHTML = msg
+// }
 
 
 // seen and unseen
-function seen_status(){
-window.addEventListener('focus',()=>{
-    stat = "seen"
-    socket.emit("delv",msg={stat,room})
-})
-window.addEventListener('blur',()=>{
-    stat = ""
-    socket.emit("delv",msg={stat,room})
-})
-}
+// function seen_status(){
+// window.addEventListener('focus',()=>{
+//     stat = "seen"
+//     socket.emit("delv",msg={stat,room})
+// })
+// window.addEventListener('blur',()=>{
+//     stat = ""
+//     socket.emit("delv",msg={stat,room})
+// })
+// }
 
 // user disconnect inform
 socket.on('user_disconnect',(users)=>{
@@ -167,12 +167,12 @@ socket.on("typing_stop",(ty)=>{
     scrollTobottom()
 })
 
-socket.on("delv",(stat)=>{
-    // appendMessage(stat,"outgoing")
-    seen_unseen(stat)
-    // console.log(stat)
-    scrollTobottom()
-})
+// socket.on("delv",(stat)=>{
+//     // appendMessage(stat,"outgoing")
+//     seen_unseen(stat)
+//     // console.log(stat)
+//     scrollTobottom()
+// })
 function scrollTobottom(){
     messagearea.scrollTop = messagearea.scrollHeight
 }
