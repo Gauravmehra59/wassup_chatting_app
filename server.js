@@ -50,6 +50,10 @@ io.on('connection',(socket)=>{
         socket.broadcast.to(data).emit("typing_stop"," ")
     })
 
+    // seen unseen 
+    socket.on("delv",(status)=>{
+        socket.broadcast.to(status.room).emit('delv',status.stat)
+    })
     // now code for disconnection
     socket.on('disconnect',()=>{
         socket.broadcast.to(roomid).emit("user_disconnect",users=user[socket.id]) // get the user id 

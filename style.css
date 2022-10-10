@@ -123,3 +123,8 @@ section.chat__section {
     transform: translateX(2px);
     width: 80px;
 } */
+
+h3 {
+    text-align: right;
+    margin-right: 70px;
+}

@@ -54,7 +54,7 @@ function appendclient(username,type,status){
 
 // now use enter key event 
 textArea.addEventListener('keyup',(e)=>{
-    socket.emit("typing",room)
+    socket.emit("typing",room) // typing socket
     if(e.key === 'Enter'){
         sendMessage(e.target.value)
         socket.emit("typing_stop",room)
@@ -65,6 +65,7 @@ textArea.addEventListener('keyup',(e)=>{
 
 })
 
+// send mssg for sebd button
 function sendmsg(){
     socket.emit("typing_stop",room)
     var mssg = textArea.value
@@ -105,12 +106,37 @@ function appendMessage(msg,type){
     mainDiv.innerHTML = markup
 
     messagearea.appendChild(mainDiv)
+    if (type == "incoming"){
+        stat = ""
+        socket.emit("delv",msg={stat,room})
+    }
+    seen_status()
+    
+
 }
 
 function appendtyping(ty){
     var data = document.getElementById("typee")
     data.innerHTML = ty
 }
+
+function seen_unseen(msg){
+    document.getElementById("status").innerHTML = msg
+}
+
+
+// seen and unseen
+function seen_status(){
+window.addEventListener('focus',()=>{
+    stat = "seen"
+    socket.emit("delv",msg={stat,room})
+})
+window.addEventListener('blur',()=>{
+    stat = ""
+    socket.emit("delv",msg={stat,room})
+})
+}
+
 // user disconnect inform
 socket.on('user_disconnect',(users)=>{
     appendclient(users,'client_name','disconnected')
@@ -141,6 +167,12 @@ socket.on("typing_stop",(ty)=>{
     scrollTobottom()
 })
 
+socket.on("delv",(stat)=>{
+    // appendMessage(stat,"outgoing")
+    seen_unseen(stat)
+    // console.log(stat)
+    scrollTobottom()
+})
 function scrollTobottom(){
     messagearea.scrollTop = messagearea.scrollHeight
 }
