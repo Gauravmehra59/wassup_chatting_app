@@ -132,6 +132,10 @@ window.addEventListener('focus',()=>{
     stat = "seen"
     socket.emit("delv",msg={stat,room})
 })
+window.addEventListener('blur',()=>{
+    stat = ""
+    socket.emit("delv",msg={stat,room})
+})
 }
 
 // user disconnect inform
