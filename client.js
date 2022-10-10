@@ -118,7 +118,7 @@ function appendMessage(msg,type){
 function appendtyping(ty){
     var data = document.getElementById("typee")
     data.innerHTML = ty
-    seen_unseen("seen")
+    // seen_unseen("seen")
 }
 
 function seen_unseen(msg){
