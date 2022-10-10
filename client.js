@@ -106,6 +106,7 @@ function appendMessage(msg,type){
     mainDiv.innerHTML = markup
 
     messagearea.appendChild(mainDiv)
+    seen_status()
     if (type == "outgoing"){
         seen_status()
     }
