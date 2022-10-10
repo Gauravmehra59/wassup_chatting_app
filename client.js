@@ -106,10 +106,10 @@ function appendMessage(msg,type){
     mainDiv.innerHTML = markup
 
     messagearea.appendChild(mainDiv)
-    if (type == "outgoing"){
-        stat = ""
-        socket.emit("delv",msg={stat,room})
-    }
+    // if (type == "outgoing"){
+    //     stat = ""
+    //     socket.emit("delv",msg={stat,room})
+    // }
     seen_status()
     
 
