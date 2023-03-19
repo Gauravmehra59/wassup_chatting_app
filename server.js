@@ -1,62 +1,58 @@
 const express = require("express")
 const app = express()
-const path = require("path")
 const http = require("http")
-const PORT = process.env.PORT || 3000
-
-// console.log(__dirname)
-
-const tempPath = __dirname
-app.use(express.static(tempPath))
+const port = process.env.PORT || 3000
 
 const server = http.createServer(app)
-server.listen(PORT,()=>{
-    console.log(`LIsten........${PORT}`)
-})
-
+app.use(express.static(__dirname))
 app.get("/",(req,res)=>{
-    res.sendFile(__dirname + '/index.html')
+    res.sendFile(__dirname +'/index.html')
 })
 
-// socket
+server.listen(port,()=>{
+    console.log(`Listen port ${port}`)
+})
 
-const io = require("socket.io")(server)
+const io = require("socket.io")(server,{
+    cors:{
+        origin: '*',
+        methods: ['GET','POST'],
+    },
+    maxHttpBufferSize: Infinity
+})
 var user = {}
-
 io.on('connection',(socket)=>{
     console.log("connected")
     var roomid
-
     socket.on('room_id',(room)=>{
-        console.log(`Join ${room}`)
         socket.join(room)
         roomid = room
     })
 
     socket.on('message',(data)=>{
-        socket.broadcast.to(data.room).emit('message',data.msg) //send the mssg to all 
+        socket.broadcast.to(data.room).emit('message',data.msg)
+        console.log(data.msg)
     })
-    socket.on('client_nme',(nme)=>{
-        user[socket.id]=nme.username
-        socket.broadcast.to(nme.room).emit('client_nme',nme.username)
+    
+    socket.on("user_name",(nam)=>{
+        user[socket.id] = nam.username
+        socket.broadcast.to(nam.room).emit('user_name',nam.username)
     })
 
-    // now typing
     socket.on('typing',(data)=>{
-        socket.broadcast.to(data).emit("typing","typing.....")
+        socket.broadcast.to(data).emit("typing","typing...")
     })
 
     socket.on('typing_stop',(data)=>{
         socket.broadcast.to(data).emit("typing_stop"," ")
     })
 
-    // seen unseen 
-    socket.on("delv",(status)=>{
-        socket.broadcast.to(status.room).emit('delv',status.stat)
-    })
-    // now code for disconnection
+
+
     socket.on('disconnect',()=>{
-        socket.broadcast.to(roomid).emit("user_disconnect",users=user[socket.id]) // get the user id 
+        console.log(roomid)
+        socket.broadcast.to(roomid).emit("user_disconnect",users = user[socket.id])
         delete user[socket.id]
+
     })
 })

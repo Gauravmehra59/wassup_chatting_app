@@ -1,178 +1,182 @@
 const socket = io()
 let username
-let textArea = document.querySelector('#textarea')
-let messagearea = document.querySelector(".message__area")
-let brandarea = document.querySelector(".brand")
-// let clientName = document.querySelector(".client_name")
-
-
+let textarea = document.querySelector('#textarea')
+let reply = document.querySelector('#reply_msg')
+let messagearea = document.querySelector('.message__area')
+let reply_id_data = document.querySelector('.reply_id')
+var audio = new Audio("message_tone.mp3")
 do{
-    username = prompt("Enter your name")
-}while(!username) // not value in username and room
+    username = prompt("Enter your name ")
+}while(!username)
 
-// for room id 
 do{
     room = prompt("Enter your room id ")
 }while(!room)
 
+socket.emit("user_name",msg={username,room})
 socket.emit('room_id',room)
-socket.emit('client_nme', data={username,room})
-welcome()
 
+welcome()
 function welcome(){
-    let mainclient = document.createElement('div')
-    let className = 'client_name'
-    mainclient.classList.add(className,'clientname')
+    let mainclient = document.createElement('div') 
+    let classname = 'client_name'
+    mainclient.classList.add(classname,'clientname')
 
     let markup = `
     <center>
-        <h1>You are connected</h1>
-        </center>
+        <h1>You are connected now</h1>
+         </center>
     `
 
     mainclient.innerHTML = markup
-
-    messagearea.appendChild(mainclient)
+    messagearea.appendChild(mainclient)    
 }
+
 function appendclient(username,type,status){
-    let mainclient = document.createElement('div')
-    let className = type
-    mainclient.classList.add(className,'clientname')
+    let mainclient = document.createElement('div') // it is use to create element
+    let classname = type
+    mainclient.classList.add(classname,'clientname')
+    var ref = ""
     if (username === null){
-        username = "Refresh the page" // for refesh the page
+        username = "Refresh the page`"
     }
     let markup = `
-    <center>
+        <center>
         <h1>${username} ${status}</h1>
         </center>
     `
 
     mainclient.innerHTML = markup
+    messagearea.appendChild(mainclient)
+}
+function sendmessage(message){ // outgoing mssg sender
+    var d = new Date()
+    var time = d.toLocaleTimeString()
+    if (message.indexOf("base64")!== -1){
+        let msg = {
+            user : username,
+            message : `<img src='${message}' width = 300px/><a href="${message}" download ><i class='bi bi-download download'></i></a>`,
+            date : time,
+            reply_data:reply.textContent,
+            reply_id: Math.floor(Math.random() * 10000),
+            reply_id_val:reply_id_data.textContent
+        }
+    
+        appendMessage(msg,'outgoing')
+        textarea.value = ""
+        scrolltobottom()
+    
+        socket.emit('message',data={msg,room})
+    }
+    else{
+    let msg = {
+        user : username,
+        message : message.trim(),
+        date : time,
+        reply_data:reply.textContent,
+        reply_id: Math.floor(Math.random() * 10000),
+        reply_id_val:reply_id_data.textContent
+    }
 
-    messagearea.appendChild(mainclient) 
+    appendMessage(msg,'outgoing')
+    textarea.value = ""
+    scrolltobottom()
+
+    socket.emit('message',data={msg,room})
+}
 }
 
-// now use enter key event 
-textArea.addEventListener('keyup',(e)=>{
-    socket.emit("typing",room) // typing socket
-    if(e.key === 'Enter'){
-        sendMessage(e.target.value)
+
+
+function appendMessage(msg,type){
+    let maindiv = document.createElement('div') // it is use to create element
+    let classname = type
+    maindiv.classList.add(classname,'message')
+
+    let markup = `
+        <h4>${msg.user}</h4>
+        <div style="background:white; color:red"><a href="#${msg.reply_id_val}">${msg.reply_data}</a></div>
+        <h1 id='${msg.reply_id}'>${msg.message}<br><i class="bi bi-reply repply"></i></h1>
+        <p>${msg.date}</p>
+    `
+    // reply_id_data.innerHTML = reply_id_data.textContent
+    reply.textContent = ""
+    maindiv.innerHTML = markup
+    messagearea.appendChild(maindiv)
+    
+    if (type == "incoming" ){
+        audio.play()
+    }
+    
+}
+
+function scrolltobottom(){
+    messagearea.scrollTop = messagearea.scrollHeight
+}
+
+
+
+//get the data from text box by enter key
+textarea.addEventListener('keyup',(e)=>{
+    socket.emit("typing",room)
+    if(e.key === "Enter"){
+        sendmessage(e.target.value)
         socket.emit("typing_stop",room)
     }
     else if(e.target.value == ""){
         socket.emit("typing_stop",room)
     }
-
 })
 
-// send mssg for sebd button
-function sendmsg(){
-    socket.emit("typing_stop",room)
-    var mssg = textArea.value
-    sendMessage(mssg)
-
-}
-
-
-function sendMessage(message){
-    var d = new Date()
-    var time = d.toLocaleTimeString()
-    let msg = {
-        user : username,
-        message : message.trim(),
-        date : time
-    }
-
-    // append the msg 
-    appendMessage(msg,'outgoing')
-    textArea.value = ""
-    scrollTobottom()
-
-    // send to server
-    socket.emit('message', data={msg,room})
-}
-
-function appendMessage(msg,type){
-    let mainDiv = document.createElement('div')
-    let className = type
-    mainDiv.classList.add(className,'message')
-
-    let markup = `
-        <h4>${msg.user}</h4>
-        <h1>${msg.message}</h1>
-        <p>${msg.date}</p>
-    `
-
-    mainDiv.innerHTML = markup
-
-    messagearea.appendChild(mainDiv)
-    // seen_status()
-    // if (type == "outgoing"){
-    //     seen_status()
-    // }
-    
-
-}
-
-function appendtyping(ty){
+function appendTyping(ty){
     var data = document.getElementById("typee")
     data.innerHTML = ty
-    // seen_unseen("seen")
 }
 
-// function seen_unseen(msg){
-//     document.getElementById("status").innerHTML = msg
-// }
+function sendmsg(){
+    socket.emit("typing_stop",room)
+    var msg = textarea.value
+    sendmessage(msg)
+}
 
-
-// seen and unseen
-// function seen_status(){
-// window.addEventListener('focus',()=>{
-//     stat = "seen"
-//     socket.emit("delv",msg={stat,room})
-// })
-// window.addEventListener('blur',()=>{
-//     stat = ""
-//     socket.emit("delv",msg={stat,room})
-// })
-// }
-
-// user disconnect inform
-socket.on('user_disconnect',(users)=>{
-    appendclient(users,'client_name','disconnected')
-    console.log(users)
-    scrollTobottom()
-})
-
-// recieve
-
-socket.on('client_nme',(nme)=>{
-    appendclient(nme,'client_name','connected')
-    scrollTobottom()
-})
-
+var loadFile = function(event){
+    var file = event.files[0]
+    if(!file.type.match("image.*")){
+        alert('Please select image only.....')
+    }
+    else{
+        var reader = new FileReader()
+        reader.addEventListener('load',function(){
+            sendmessage(reader.result)
+        })
+        reader.readAsDataURL(file)
+    }
+}
+// recieve the data 
 socket.on('message',(msg)=>{
+    // document.getElementById("audio").play() // for incoming mssg sound
     appendMessage(msg,'incoming')
-    scrollTobottom()
+    scrolltobottom()
 })
 
-// recive the typing
-socket.on('typing',(ty)=>{
-    appendtyping(ty)
-    scrollTobottom()
+
+socket.on('user_name',(username)=>{
+    appendclient(username,'client_name','connected')
+    scrolltobottom()
+})
+
+socket.on('user_disconnect',(user)=>{
+    appendclient(user,'client_name','disconnected')
+    console.log(user)
+    scrolltobottom()
+})
+
+socket.on("typing",(ty)=>{
+    appendTyping(ty)
+    scrolltobottom()
 })
 
 socket.on("typing_stop",(ty)=>{
-    appendtyping(ty)
-    scrollTobottom()
+    appendTyping(ty)
+    scrolltobottom()
 })
-
-// socket.on("delv",(stat)=>{
-//     // appendMessage(stat,"outgoing")
-//     seen_unseen(stat)
-//     // console.log(stat)
-//     scrollTobottom()
-// })
-function scrollTobottom(){
-    messagearea.scrollTop = messagearea.scrollHeight
-}
