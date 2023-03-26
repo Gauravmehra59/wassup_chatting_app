@@ -140,17 +140,24 @@ function sendmsg(){
 }
 
 var loadFile = function(event){
-    var file = event.files[0]
-    if(!file.type.match("image.*")){
-        alert('Please select image only.....')
+    // var data = event.files
+    Object.keys(event.files).forEach(myfunction)
+    function myfunction(item){
+        console.log(item)
+        var file = event.files[item]
+        console.log(event.files)
+        if(!file.type.match("image.*")){
+            alert('Please select image only.....')
+        }
+        else{
+            var reader = new FileReader()
+            reader.addEventListener('load',function(){
+                sendmessage(reader.result)
+            })
+            reader.readAsDataURL(file)
+        }
     }
-    else{
-        var reader = new FileReader()
-        reader.addEventListener('load',function(){
-            sendmessage(reader.result)
-        })
-        reader.readAsDataURL(file)
-    }
+    console.log(Object.keys(event.files))
 }
 // recieve the data 
 socket.on('message',(msg)=>{
